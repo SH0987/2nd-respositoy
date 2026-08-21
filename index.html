@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Mark Calculator with Rank List</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#2193b0,#6dd5ed);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:30px;
+}
+
+.container{
+    width:100%;
+    max-width:1000px;
+    background:#fff;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.2);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.form{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+}
+
+input{
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:15px;
+}
+
+button{
+    grid-column:1/-1;
+    padding:12px;
+    background:#28a745;
+    color:white;
+    border:none;
+    border-radius:6px;
+    font-size:17px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#218838;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:25px;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#007bff;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f5f5f5;
+}
+
+.rank1{
+    background:#FFD700 !important;
+    font-weight:bold;
+}
+
+.rank2{
+    background:#C0C0C0 !important;
+    font-weight:bold;
+}
+
+.rank3{
+    background:#CD7F32 !important;
+    color:white;
+    font-weight:bold;
+}
+
+h2{
+    margin-top:25px;
+    color:#333;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🎓 Student Mark Calculator</h1>
+
+<div class="form">
+
+<input type="text" id="name" placeholder="Student Name">
+
+<input type="number" id="s1" placeholder="Subject 1">
+<input type="number" id="s2" placeholder="Subject 2">
+<input type="number" id="s3" placeholder="Subject 3">
+<input type="number" id="s4" placeholder="Subject 4">
+<input type="number" id="s5" placeholder="Subject 5">
+
+<button onclick="addStudent()">Add Student</button>
+
+</div>
+
+<h2>🏆 Rank List</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Rank</th>
+<th>Name</th>
+<th>Total</th>
+<th>Average</th>
+<th>Percentage</th>
+<th>Grade</th>
+<th>Result</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="studentTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let students=[];
+
+function grade(p){
+
+    if(p>=90) return "A+";
+    if(p>=80) return "A";
+    if(p>=70) return "B";
+    if(p>=60) return "C";
+    if(p>=50) return "D";
+    return "F";
+
+}
+
+function result(marks){
+
+    return marks.every(m=>m>=35) ? "PASS" : "FAIL";
+
+}
+
+function addStudent(){
+
+    let name=document.getElementById("name").value.trim();
+
+    let marks=[
+        Number(document.getElementById("s1").value),
+        Number(document.getElementById("s2").value),
+        Number(document.getElementById("s3").value),
+        Number(document.getElementById("s4").value),
+        Number(document.getElementById("s5").value)
+    ];
+
+    if(name===""){
+        alert("Enter student name");
+        return;
+    }
+
+    for(let m of marks){
+
+        if(isNaN(m) || m<0 || m>100){
+            alert("Enter marks between 0 and 100");
+            return;
+        }
+
+    }
+
+    let total=marks.reduce((a,b)=>a+b,0);
+    let average=total/5;
+    let percentage=average;
+
+    students.push({
+        name,
+        total,
+        average,
+        percentage,
+        grade:grade(percentage),
+        result:result(marks)
+    });
+
+    clearInputs();
+
+    displayStudents();
+
+}
+
+function displayStudents(){
+
+    students.sort((a,b)=>b.percentage-a.percentage);
+
+    let html="";
+
+    students.forEach((student,index)=>{
+
+        let cls="";
+
+        if(index==0) cls="rank1";
+        else if(index==1) cls="rank2";
+        else if(index==2) cls="rank3";
+
+        html+=`
+        <tr class="${cls}">
+            <td>${index+1}</td>
+            <td>${student.name}</td>
+            <td>${student.total}</td>
+            <td>${student.average.toFixed(2)}</td>
+            <td>${student.percentage.toFixed(2)}%</td>
+            <td>${student.grade}</td>
+            <td>${student.result}</td>
+            <td>
+                <button onclick="deleteStudent(${index})"
+                style="background:red;padding:6px 12px;">
+                Delete
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+    document.getElementById("studentTable").innerHTML=html;
+
+}
+
+function deleteStudent(index){
+
+    students.splice(index,1);
+
+    displayStudents();
+
+}
+
+function clearInputs(){
+
+    document.getElementById("name").value="";
+    document.getElementById("s1").value="";
+    document.getElementById("s2").value="";
+    document.getElementById("s3").value="";
+    document.getElementById("s4").value="";
+    document.getElementById("s5").value="";
+
+}
+
+</script>
+
+</body>
+</html>
